@@ -3,6 +3,7 @@ import 'package:wallify/themes/themes.dart';
 import 'package:wallify/views/home/home_view.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();  
   runApp(const MyApp());
 }
 

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:wallify/constants/app_colors.dart';
@@ -27,19 +28,31 @@ class _HomeViewState extends State<HomeView> {
   List<CategoriesModel> categories = [];
   List<WallpaperModel> wallpapers = [];
   TextEditingController searchController = TextEditingController();
+  final int _pageSize = 20;
+  int _page = 1;
 
-  getTrendingWallpaper() async {
+  // There is next page or not
+  bool _hasNextPage = true;
+
+  // Used to display loading indicators when _loadMore function is running
+  bool _isLoadMoreRunning = false;
+
+  late ScrollController scrollController;
+
+  firstLoad() async {
     setState(() {
       _isLoading = true;
     });
 
-    var url = Uri.parse("https://api.pexels.com/v1/curated?per_page=20");
+    var url = Uri.parse(
+        "https://api.pexels.com/v1/curated/?page=$_page&per_page=$_pageSize");
     var response = await http.get(url, headers: {"Authorization": apiKey});
-    // log(response.body.toString());
 
     Map<String, dynamic> jsonData = jsonDecode(response.body);
+
+    log(jsonData.toString());
+
     jsonData["photos"].forEach((element) {
-      // log(element.toString());
       WallpaperModel wallpaperModel = WallpaperModel();
       wallpaperModel = WallpaperModel.fromMap(element);
       wallpapers.add(wallpaperModel);
@@ -49,11 +62,73 @@ class _HomeViewState extends State<HomeView> {
     });
   }
 
+  // This function will be triggered whenver the user scroll
+  // to near the bottom of the list view
+  void _loadMore() async {
+    if (_hasNextPage == true &&
+        _isLoading == false &&
+        _isLoadMoreRunning == false &&
+        scrollController.position.extentAfter < 300) {
+      setState(() {
+        _isLoadMoreRunning = true; // Display a progress indicator at the bottom
+      });
+      _page += 1; // Increase _page by 1
+
+      var url = Uri.parse(
+          "https://api.pexels.com/v1/curated/?page=$_page&per_page=$_pageSize");
+      var response = await http.get(url, headers: {"Authorization": apiKey});
+
+      Map<String, dynamic> jsonData = jsonDecode(response.body);
+
+      log(jsonData.toString());
+
+      jsonData["photos"].forEach((element) {
+        WallpaperModel wallpaperModel = WallpaperModel();
+        wallpaperModel = WallpaperModel.fromMap(element);
+        wallpapers.add(wallpaperModel);
+      });
+
+      List<WallpaperModel> listt = List<WallpaperModel>.from(
+        (jsonData['photos'] as List<dynamic>).map<WallpaperModel>(
+          (x) => WallpaperModel.fromMap(x as Map<String, dynamic>),
+        ),
+      );
+      if (listt.isNotEmpty) {
+        setState(() {
+          wallpapers.addAll(listt);
+        });
+      } else {
+        // This means there is no more data
+        // and therefore, we will not send another GET request
+        setState(() {
+          _hasNextPage = false;
+        });
+      }
+    }
+
+    setState(() {
+      _isLoadMoreRunning = false;
+    });
+  }
+
   @override
   void initState() {
-    getTrendingWallpaper();
+    firstLoad();
+    scrollController = ScrollController()
+      ..addListener(() {
+        if (scrollController.position.maxScrollExtent ==
+            scrollController.offset) {
+          _loadMore();
+        }
+      });
     categories = getCategories();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    scrollController.removeListener(_loadMore);
+    super.dispose();
   }
 
   @override
@@ -61,6 +136,7 @@ class _HomeViewState extends State<HomeView> {
     return Scaffold(
       appBar: myAppBar(context),
       body: SingleChildScrollView(
+        controller: scrollController,
         child: Column(
           children: [
             // Search Box here
@@ -101,21 +177,21 @@ class _HomeViewState extends State<HomeView> {
                 ],
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                AppText(
-                  text: "Made By: ",
-                  color: Kolors.grey,
-                  size: 12,
-                ),
-                AppText(
-                  text: "Xubair",
-                  color: Kolors.blue,
-                  fontWeight: FontWeight.bold,
-                ),
-              ],
-            ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   children: [
+            //     AppText(
+            //       text: "Made By: ",
+            //       color: Kolors.grey,
+            //       size: 12,
+            //     ),
+            //     AppText(
+            //       text: "Xubair",
+            //       color: Kolors.blue,
+            //       fontWeight: FontWeight.bold,
+            //     ),
+            //   ],
+            // ),
             SizedBox(height: getHeight(16)),
             SizedBox(
               height: getWidth(50),
@@ -156,36 +232,48 @@ class _HomeViewState extends State<HomeView> {
                       },
                     ),
             ),
-            SizedBox(
-              height: getHeight(16),
-            ),
+            SizedBox(height: getHeight(16)),
             _isLoading
-                ? Shimmer.fromColors(
-                    baseColor: (Colors.grey[400])!,
-                    highlightColor: (Colors.grey[100])!,
-                    child: GridView.count(
-                      shrinkWrap: true,
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.6,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: getWidth(16),
-                      ),
-                      mainAxisSpacing: 8.0,
-                      crossAxisSpacing: 8.0,
-                      children: List.generate(10, (index) {
-                        return Container(
-                          height: getHeight(200),
-                          width: getWidth(100),
-                          decoration: BoxDecoration(
-                              color: Kolors.white,
-                              borderRadius: BorderRadius.circular(20)),
-                        );
-                      }),
-                    ),
-                  )
+                ? _loadingShimmer()
                 : WallpaperThumbnail(context: context, wallpapers: wallpapers),
+            // when the _loadMore function is running
+            if (_isLoadMoreRunning == true) _loadingShimmer(),
+
+            if (_hasNextPage == false)
+              Container(
+                padding: const EdgeInsets.only(top: 30, bottom: 40),
+                color: Colors.amber,
+                child: const Center(
+                  child: Text('You have fetched all of the wallpaper'),
+                ),
+              ),
           ],
         ),
+      ),
+    );
+  }
+
+  Shimmer _loadingShimmer() {
+    return Shimmer.fromColors(
+      baseColor: (Colors.grey[300])!,
+      highlightColor: (Colors.grey[50])!,
+      child: GridView.count(
+        shrinkWrap: true,
+        crossAxisCount: 2,
+        childAspectRatio: 0.6,
+        padding: EdgeInsets.symmetric(
+          horizontal: getWidth(16),
+        ),
+        mainAxisSpacing: 8.0,
+        crossAxisSpacing: 8.0,
+        children: List.generate(10, (index) {
+          return Container(
+            height: getHeight(200),
+            width: getWidth(100),
+            decoration: BoxDecoration(
+                color: Kolors.white, borderRadius: BorderRadius.circular(20)),
+          );
+        }),
       ),
     );
   }

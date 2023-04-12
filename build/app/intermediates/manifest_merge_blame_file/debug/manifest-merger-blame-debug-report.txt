@@ -6,7 +6,7 @@
 6
 7    <uses-sdk
 8        android:minSdkVersion="16"
-9        android:targetSdkVersion="31" />
+9        android:targetSdkVersion="33" />
 10    <!--
 11         Flutter needs it to communicate with the running application
 12         to allow setting breakpoints, to provide hot reload, etc.
@@ -27,7 +27,7 @@
 20    <application
 21        android:name="android.app.Application"
 22        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-22-->[androidx.core:core:1.6.0] C:\Users\khanj\.gradle\caches\transforms-3\59d07b9236492ac1f3d5c858b903ce80\transformed\core-1.6.0\AndroidManifest.xml:24:18-86
+22-->[androidx.core:core:1.6.0] C:\Users\khanj\.gradle\caches\transforms-3\4ca28c4a71705f8a687c69dda140a277\transformed\core-1.6.0\AndroidManifest.xml:24:18-86
 23        android:debuggable="true"
 24        android:icon="@mipmap/ic_launcher"
 25        android:label="Wallify" >
@@ -63,6 +63,19 @@
 55        <meta-data
 56            android:name="flutterEmbedding"
 57            android:value="2" />
-58    </application>
-59
-60</manifest>
+58
+59        <uses-library
+59-->[androidx.window:window:1.0.0-beta04] C:\Users\khanj\.gradle\caches\transforms-3\dee59bb480020f42d53c2ea15e4501f7\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:25:9-27:40
+60            android:name="androidx.window.extensions"
+60-->[androidx.window:window:1.0.0-beta04] C:\Users\khanj\.gradle\caches\transforms-3\dee59bb480020f42d53c2ea15e4501f7\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:26:13-54
+61            android:required="false" />
+61-->[androidx.window:window:1.0.0-beta04] C:\Users\khanj\.gradle\caches\transforms-3\dee59bb480020f42d53c2ea15e4501f7\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:27:13-37
+62        <uses-library
+62-->[androidx.window:window:1.0.0-beta04] C:\Users\khanj\.gradle\caches\transforms-3\dee59bb480020f42d53c2ea15e4501f7\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:28:9-30:40
+63            android:name="androidx.window.sidecar"
+63-->[androidx.window:window:1.0.0-beta04] C:\Users\khanj\.gradle\caches\transforms-3\dee59bb480020f42d53c2ea15e4501f7\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:29:13-51
+64            android:required="false" />
+64-->[androidx.window:window:1.0.0-beta04] C:\Users\khanj\.gradle\caches\transforms-3\dee59bb480020f42d53c2ea15e4501f7\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:30:13-37
+65    </application>
+66
+67</manifest>

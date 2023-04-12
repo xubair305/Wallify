@@ -8,12 +8,13 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:wallify/constants/app_colors.dart';
 import 'package:wallify/constants/app_size.dart';
-import 'package:wallify/constants/app_text.dart';
 
 class ImageView extends StatefulWidget {
   final String? imgUrl;
+  final String heroTag;
 
-  const ImageView({Key? key, this.imgUrl}) : super(key: key);
+  const ImageView({Key? key, this.imgUrl, required this.heroTag})
+      : super(key: key);
 
   @override
   _ImageViewState createState() => _ImageViewState();
@@ -27,7 +28,7 @@ class _ImageViewState extends State<ImageView> {
       body: Stack(
         children: [
           Hero(
-            tag: widget.imgUrl!,
+            tag: widget.heroTag,
             child: SizedBox(
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
@@ -133,8 +134,8 @@ class _ImageViewState extends State<ImageView> {
       if (result != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Saved"),
-            duration: Duration(seconds: 3),
+            content: Text("Downloaded..."),
+            duration: Duration(seconds: 2),
           ),
         );
         log("********************Saved in gallery*******************");
