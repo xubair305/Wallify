@@ -116,9 +116,7 @@ class _HomeViewState extends State<HomeView> {
                 ),
               ],
             ),
-            SizedBox(
-              height: getHeight(16),
-            ),
+            SizedBox(height: getHeight(16)),
             SizedBox(
               height: getWidth(50),
               child: _isLoading

@@ -103,6 +103,7 @@ class _CategorieState extends State<Categorie> {
                     ),
                   )
                 : WallpaperThumbnail(context: context, wallpapers: wallpapers),
+                
           ],
         ),
       ),
